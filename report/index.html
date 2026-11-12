@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#00304B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Report PMZ">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" id="appIcon">
+<link rel="icon" id="favIcon">
+<title>Report Fechamento PMZ</title>
+<style>
+/* Layout: uma coluna para celular, cartões numerados na ordem de preenchimento, botão de ação fixo no rodapé */
+:root{
+  --azul:#00304B; --azul-2:#0B4466; --laranja:#D9711C; --laranja-esc:#8A4308;
+  --texto:#14212B; --suave:#3F5F77; --painel:#F2F5F7; --linha:#D3DDE5; --fundo:#E9EEF2; --branco:#FFFFFF;
+  --aviso-bg:#FFF4EA; --aviso-borda:#F0C9A3;
+  --fonte:"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--fundo);color:var(--texto);font-family:var(--fonte);font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.top{background:var(--azul);color:var(--branco);padding-top:max(18px, env(safe-area-inset-top));padding-bottom:18px;padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right))}
+.top .wrap{max-width:640px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.12em;color:#F2A65E}
+.top h1{margin:2px 0 0;font-size:22px;line-height:1.2}
+.top .link{background:none;border:1px solid rgba(255,255,255,.6);color:var(--branco);border-radius:8px;min-height:40px;padding:0 12px;font:inherit;font-size:14px;font-weight:600}
+main,.saida{max-width:640px;margin:0 auto;padding:16px max(16px, env(safe-area-inset-right)) 120px max(16px, env(safe-area-inset-left));display:flex;flex-direction:column;gap:14px}
+.card{background:var(--branco);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card h2{margin:0;font-size:14px;letter-spacing:.06em;color:var(--azul);text-transform:uppercase}
+.card h3{margin:4px 0 0;font-size:13px;color:var(--suave);text-transform:uppercase;letter-spacing:.05em}
+.dica{margin:0;font-size:13px;color:var(--suave)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--suave)}
+input,select,textarea{width:100%;min-height:48px;padding:0 12px;border:1px solid var(--linha);border-radius:8px;background:var(--branco);color:var(--texto);font:inherit;font-size:17px}
+textarea{padding:10px 12px;min-height:80px;resize:vertical;font-size:15px}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--laranja);outline-offset:1px}
+.num{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.seg input{position:absolute;opacity:0;pointer-events:none;width:1px;min-height:0}
+.seg label{min-height:48px;border:1px solid var(--linha);border-radius:8px;align-items:center;justify-content:center;font-size:15px;color:var(--texto);background:var(--branco);cursor:pointer}
+.seg input:checked + span{color:var(--branco)}
+.seg label:has(input:checked){background:var(--azul);border-color:var(--azul);color:var(--branco)}
+.seg label:has(input:focus-visible){outline:3px solid var(--laranja)}
+.truck{border:1px solid var(--linha);border-radius:10px;padding:12px;background:var(--painel);display:flex;flex-direction:column;gap:10px}
+.truck-head{display:flex;align-items:center;justify-content:space-between}
+.truck-head strong{font-size:14px;color:var(--suave)}
+.qtd{display:flex;gap:6px}
+.qtd input{flex:0 0 68px;padding:0 8px}
+.qtd select{flex:1 1 auto;min-width:0;font-size:15px;padding:0 4px}
+.btn{min-height:48px;border-radius:10px;border:1px solid var(--azul);background:var(--branco);color:var(--azul);font:inherit;font-size:16px;font-weight:700;padding:0 16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.btn-sm{min-height:40px;width:auto;font-size:14px;padding:0 12px;border-color:var(--linha);color:var(--suave)}
+.btn-pri{background:var(--azul);color:var(--branco)}
+.btn-acc{background:var(--laranja);border-color:var(--laranja);color:var(--texto)}
+.btn-zap{background:#1F8F4E;border-color:#1F8F4E;color:var(--branco);min-height:58px;font-size:18px}
+.barra{position:fixed;left:0;right:0;bottom:0;background:rgba(233,238,242,.96);border-top:1px solid var(--linha);padding:10px max(16px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left))}
+.barra .in{max-width:640px;margin:0 auto}
+.avisos{background:var(--aviso-bg);border:1px solid var(--aviso-borda);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.avisos strong{color:var(--laranja-esc)}
+.avisos ul{margin:0;padding-left:18px;font-size:14px;color:#5A2E06}
+.prev{background:var(--branco);border-radius:12px;padding:10px}
+.prev img{display:block;width:100%;height:auto;border-radius:6px}
+.passos{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.msg{font-size:14px;background:var(--painel);border-radius:8px;padding:10px 12px;color:var(--texto)}
+details{background:var(--branco);border-radius:12px;padding:14px 16px}
+summary{font-weight:700;color:var(--azul);cursor:pointer;min-height:24px}
+details .passos{margin-top:10px}
+.out{font-size:14px;min-height:220px;background:var(--painel)}
+@media (prefers-reduced-motion: no-preference){ html{scroll-behavior:smooth} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">LOGÍSTICA · GRUPO PMZ</div>
+      <h1>Report de Fechamento</h1>
+    </div>
+    <button class="link" type="button" id="btnAjuda">Como usar</button>
+  </div>
+</header>
+
+<!-- ===== FORMULÁRIO ===== -->
+<main id="telaForm">
+
+  <details id="ajuda">
+    <summary>Passo a passo (toque para abrir)</summary>
+    <ol class="passos">
+      <li>Confira a <b>data</b> e o <b>turno</b>. Seu nome e as menções ficam salvos de um dia para o outro.</li>
+      <li>Preencha os <b>números</b> de conferência, E2E e buffer.</li>
+      <li>Nos <b>caminhões</b>, os de ontem já aparecem: preencha a quantidade e confira loja e placa. Use <b>+ Adicionar caminhão</b> ou <b>Remover</b>.</li>
+      <li>Toque em <b>Gerar relatório</b>.</li>
+      <li>Toque em <b>Enviar no WhatsApp</b>, escolha o <b>WhatsApp</b>, depois o <b>grupo</b>, e envie.</li>
+      <li>Se o WhatsApp não abrir: <b>Salvar imagem</b>, depois <b>Copiar texto</b>. No grupo, anexe a imagem e cole o texto na legenda.</li>
+    </ol>
+  </details>
+
+  <section class="card" aria-labelledby="h1">
+    <h2 id="h1">1 · Turno</h2>
+    <div class="grid2">
+      <label for="cd">CD<select id="cd">
+        <option value="CD25">CD25 – Macapá</option>
+        <option value="CD26">CD26 – Várzea Grande</option>
+        <option value="CD27">CD27 – Santarém</option>
+        <option value="CD28">CD28 – Manaus</option>
+        <option value="CD29">CD29 – Boa Vista</option>
+        <option value="CD62">CD62 – Altamira</option>
+        <option value="CD64">CD64 – Belém</option>
+        <option value="CD91">CD91 – São Luís</option>
+      </select></label>
+      <label for="data">Data<input id="data" type="date"></label>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--suave);margin-bottom:5px" id="lblTurno">Turno</div>
+      <div class="seg" role="radiogroup" aria-labelledby="lblTurno">
+        <label><input type="radio" name="turno" value="Manhã"><span>Manhã</span></label>
+        <label><input type="radio" name="turno" value="Tarde"><span>Tarde</span></label>
+        <label><input type="radio" name="turno" value="Noite"><span>Noite</span></label>
+      </div>
+    </div>
+    <label for="resp">Responsável<input id="resp" type="text" autocomplete="name" placeholder="Seu nome"></label>
+  </section>
+
+  <section class="card" aria-labelledby="h2">
+    <h2 id="h2">2 · Números do turno</h2>
+    <h3>Conferência</h3>
+    <div class="grid2">
+      <label for="emArea">Em área<input id="emArea" class="num" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+      <label for="programadas">Programadas<input id="programadas" class="num" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+      <label for="encerradas">IDs encerrados<input id="encerradas" class="num" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+      <label for="forTela">FOR / Em tela<input id="forTela" class="num" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+    </div>
+    <h3>End-to-end (E2E)</h3>
+    <div class="grid2">
+      <label for="e2e28"><span id="lblE2eA">IDs CD28</span><input id="e2e28" class="num" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+      <label for="e2e23"><span id="lblE2eB">IDs CD23</span><input id="e2e23" class="num" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+    </div>
+    <h3>Buffer – dia seguinte</h3>
+    <label for="buffer">IDs de ordens programadas<input id="buffer" class="num" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+  </section>
+
+  <section class="card" aria-labelledby="h3t">
+    <h2 id="h3t">3 · Caminhões</h2>
+    <p class="dica">Embarcado = carregado, com nota fiscal emitida, só aguardando sair para a rota.</p>
+    <div id="trucks" style="display:flex;flex-direction:column;gap:10px"></div>
+    <button class="btn" type="button" id="addTruck">+ Adicionar caminhão</button>
+  </section>
+
+  <details class="card" id="boxMen" style="gap:0">
+    <summary>4 · Ajustes do CD (configurar uma vez)</summary>
+    <p class="dica" style="margin-top:10px">Nomes das duas origens do E2E deste CD:</p>
+    <div class="grid2" style="margin-top:8px">
+      <label for="e2eA">E2E · origem 1<input id="e2eA" type="text" placeholder="CD28"></label>
+      <label for="e2eB">E2E · origem 2<input id="e2eB" type="text" placeholder="CD23"></label>
+    </div>
+    <label for="mencoes" style="margin-top:12px">Menções no grupo (uma pessoa por linha)<textarea id="mencoes" rows="3" placeholder="@Nome Sobrenome"></textarea></label>
+    <p class="dica" style="margin-top:8px">No WhatsApp, para a pessoa ser avisada, apague o @ e digite de novo escolhendo o contato na lista.</p>
+  </details>
+
+  <div class="avisos" id="avisos" hidden role="alert">
+    <strong>Faltam informações:</strong>
+    <ul id="avisosLista"></ul>
+    <button class="btn" type="button" id="gerarMesmo">Gerar mesmo assim</button>
+  </div>
+
+  <button class="btn btn-sm" type="button" id="limpar" style="align-self:center;border:none;text-decoration:underline">Começar um dia novo (limpar números)</button>
+
+  <div class="barra"><div class="in"><button class="btn btn-acc" type="button" id="gerar" style="min-height:56px;font-size:18px">Gerar relatório</button></div></div>
+</main>
+
+<!-- ===== RESULTADO ===== -->
+<section class="saida" id="telaSaida" hidden aria-label="Relatório pronto">
+  <button class="btn btn-sm" type="button" id="voltar" style="align-self:flex-start">← Voltar e corrigir</button>
+
+  <div class="card">
+    <h2>Pronto para enviar</h2>
+    <button class="btn btn-zap" type="button" id="enviar">Enviar no WhatsApp</button>
+    <p class="dica" style="margin:0">Escolha <b>WhatsApp</b>, depois o <b>grupo</b>, e toque em enviar. A imagem vai com o texto.</p>
+    <div class="msg" id="msg" hidden role="status"></div>
+  </div>
+
+  <details id="planoB">
+    <summary>Não abriu o WhatsApp? Use estes 3 passos</summary>
+    <ol class="passos">
+      <li><button class="btn btn-pri" type="button" id="salvar">1 · Salvar imagem</button></li>
+      <li><button class="btn btn-pri" type="button" id="copiar">2 · Copiar texto</button></li>
+      <li>3 · No grupo, toque no clipe, escolha a imagem salva e <b>cole o texto na legenda</b>.</li>
+    </ol>
+  </details>
+
+  <div class="prev"><img id="img" alt="Imagem do fechamento do expediente"></div>
+
+  <label for="saidaTexto">Texto que vai junto<textarea id="saidaTexto" class="out" readonly></textarea></label>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'pmzReportFechamento.v1';
+  var NUMS = [
+    ['emArea', 'Conferências em área'], ['programadas', 'Conferências programadas'],
+    ['encerradas', 'IDs de ordens encerradas'], ['forTela', 'FOR / Em tela'],
+    ['e2e28', 'E2E – IDs CD28'], ['e2e23', 'E2E – IDs CD23'], ['buffer', 'Buffer – IDs programados']
+  ];
+  var ST = {
+    emb: { label: 'EMBARCADO', nome: 'Embarcado', emoji: '✅', bg: '#E3EEF5', fg: '#00304B' },
+    car: { label: 'EM CARREGAMENTO', nome: 'Em carregamento', emoji: '🟡', bg: '#FBE7D3', fg: '#8A4308' },
+    nf:  { label: 'AGUARDANDO NF', nome: 'Aguardando NF', emoji: '🧾', bg: '#ECEFF2', fg: '#3F5F77' }
+  };
+  var TURNO_EMOJI = { 'Manhã': '☀️', 'Tarde': '🌤️', 'Noite': '🌙' };
+  var FONT = '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+
+  function $(s) { return document.querySelector(s); }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function hoje() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function caminhaoVazio() { return { loja: '', placa: '', qtd: '', un: 'paletes', st: 'emb', obs: '' }; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function base() {
+    var h = new Date().getHours();
+    return { salvoEm: hoje(), cd: 'CD28', e2eA: 'CD28', e2eB: 'CD23', data: hoje(), turno: h < 12 ? 'Manhã' : (h < 18 ? 'Tarde' : 'Noite'), resp: '',
+      emArea: '', programadas: '', encerradas: '', forTela: '', e2e28: '', e2e23: '', buffer: '',
+      trucks: [caminhaoVazio()], mencoes: '' };
+  }
+
+  // Carrega: mesmo dia = rascunho completo; outro dia = só o que se repete (nome, menções, lojas e placas)
+  function carregar() {
+    var d = base();
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return d;
+      var s = JSON.parse(raw);
+      if (s.salvoEm === hoje()) { return Object.assign(d, s); }
+      d.resp = s.resp || ''; d.mencoes = s.mencoes || ''; if (s.turno) d.turno = s.turno;
+      if (s.cd) d.cd = s.cd; if (s.e2eA != null) d.e2eA = s.e2eA; if (s.e2eB != null) d.e2eB = s.e2eB;
+      if (Array.isArray(s.trucks) && s.trucks.length) {
+        d.trucks = s.trucks.map(function (t) { return { loja: t.loja || '', placa: t.placa || '', qtd: '', un: t.un || 'paletes', st: 'emb', obs: '' }; });
+      }
+    } catch (e) {}
+    return d;
+  }
+  var S = carregar();
+  function salvar() { S.salvoEm = hoje(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+  // ---------- Formulário ----------
+  function preencher() {
+    $('#data').value = S.data; $('#resp').value = S.resp; $('#mencoes').value = S.mencoes;
+    $('#cd').value = S.cd; $('#e2eA').value = S.e2eA; $('#e2eB').value = S.e2eB; rotulos();
+    NUMS.forEach(function (p) { $('#' + p[0]).value = S[p[0]]; });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name=turno]'), function (r) { r.checked = (r.value === S.turno); });
+    desenharCaminhoes();
+  }
+  function nomeA() { return vazio(S.e2eA) ? 'origem 1' : S.e2eA.trim(); }
+  function nomeB() { return vazio(S.e2eB) ? 'origem 2' : S.e2eB.trim(); }
+  function rotulos() { $('#lblE2eA').textContent = 'IDs ' + nomeA(); $('#lblE2eB').textContent = 'IDs ' + nomeB(); }
+  ['data', 'resp', 'mencoes', 'cd', 'e2eA', 'e2eB'].concat(NUMS.map(function (p) { return p[0]; })).forEach(function (id) {
+    var el = $('#' + id);
+    el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', function (e) { S[id] = e.target.value; salvar(); rotulos(); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name=turno]'), function (r) {
+    r.addEventListener('change', function () { S.turno = r.value; salvar(); });
+  });
+
+  function desenharCaminhoes() {
+    var box = $('#trucks'); box.innerHTML = '';
+    S.trucks.forEach(function (t, i) {
+      var n = i + 1, el = document.createElement('div');
+      el.className = 'truck';
+      el.innerHTML =
+        '<div class="truck-head"><strong>Caminhão ' + n + '</strong>' +
+        '<button type="button" class="btn btn-sm" data-rm aria-label="Remover caminhão ' + n + '">Remover</button></div>' +
+        '<div class="grid2">' +
+          '<label for="loja' + i + '">Loja<input id="loja' + i + '" data-k="loja" type="text" placeholder="Ex.: 86" value="' + esc(t.loja) + '"></label>' +
+          '<label for="placa' + i + '">Placa<input id="placa' + i + '" data-k="placa" type="text" autocapitalize="characters" placeholder="Ex.: 7E26" value="' + esc(t.placa) + '"></label>' +
+          '<label for="qtd' + i + '">Quantidade<span class="qtd"><input id="qtd' + i + '" data-k="qtd" class="num" type="number" inputmode="numeric" min="0" placeholder="0" value="' + esc(t.qtd) + '">' +
+            '<select data-k="un" aria-label="Unidade do caminhão ' + n + '">' +
+              ['paletes', 'volumes', 'gaiolas'].map(function (u) { return '<option' + (t.un === u ? ' selected' : '') + '>' + u + '</option>'; }).join('') +
+            '</select></span></label>' +
+          '<label for="st' + i + '">Status<select id="st' + i + '" data-k="st">' +
+            Object.keys(ST).map(function (k) { return '<option value="' + k + '"' + (t.st === k ? ' selected' : '') + '>' + ST[k].nome + '</option>'; }).join('') +
+          '</select></label>' +
+        '</div>' +
+        '<label for="obs' + i + '">Observação (opcional)<input id="obs' + i + '" data-k="obs" type="text" placeholder="Ex.: caminhão emprestado" value="' + esc(t.obs) + '"></label>';
+      Array.prototype.forEach.call(el.querySelectorAll('[data-k]'), function (inp) {
+        var ev = inp.tagName === 'SELECT' ? 'change' : 'input';
+        inp.addEventListener(ev, function () { S.trucks[i][inp.getAttribute('data-k')] = inp.value; salvar(); });
+      });
+      el.querySelector('[data-rm]').addEventListener('click', function () { S.trucks.splice(i, 1); salvar(); desenharCaminhoes(); });
+      box.appendChild(el);
+    });
+  }
+  $('#addTruck').addEventListener('click', function () {
+    S.trucks.push(caminhaoVazio()); salvar(); desenharCaminhoes();
+    var ult = document.getElementById('loja' + (S.trucks.length - 1)); if (ult) ult.focus();
+  });
+  $('#limpar').addEventListener('click', function () {
+    NUMS.forEach(function (p) { S[p[0]] = ''; });
+    S.data = hoje();
+    S.trucks = S.trucks.map(function (t) { return { loja: t.loja, placa: t.placa, qtd: '', un: t.un, st: 'emb', obs: '' }; });
+    salvar(); preencher(); window.scrollTo(0, 0);
+  });
+  $('#btnAjuda').addEventListener('click', function () {
+    if (!$('#telaSaida').hidden) { $('#planoB').open = true; $('#planoB').scrollIntoView(); return; }
+    $('#ajuda').open = true; $('#ajuda').scrollIntoView();
+  });
+
+  // ---------- Cálculos ----------
+  function vazio(x) { return x === undefined || x === null || String(x).trim() === ''; }
+  function v(x) { return vazio(x) ? '—' : String(x).trim(); }
+  function num(x) { var n = parseInt(String(x).replace(/\D/g, ''), 10); return isNaN(n) ? null : n; }
+  function fmt(n) { return n === null ? '—' : n.toLocaleString('pt-BR'); }
+  function dataBR() { var p = (S.data || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : '—'; }
+
+  function avisos() {
+    var w = [];
+    if (vazio(S.resp)) w.push('Responsável');
+    NUMS.forEach(function (p) { if (vazio(S[p[0]])) w.push(p[1]); });
+    if (!S.trucks.length) w.push('Nenhum caminhão informado');
+    S.trucks.forEach(function (t, i) {
+      var f = [];
+      if (vazio(t.loja)) f.push('loja'); if (vazio(t.placa)) f.push('placa'); if (vazio(t.qtd)) f.push('quantidade');
+      if (f.length) w.push('Caminhão ' + (i + 1) + (t.placa ? ' (' + t.placa + ')' : '') + ': ' + f.join(', '));
+    });
+    return w;
+  }
+
+  function resumo() {
+    var tot = {}, cont = { emb: 0, car: 0, nf: 0 };
+    S.trucks.forEach(function (t) { cont[t.st] = (cont[t.st] || 0) + 1; var n = num(t.qtd); if (n !== null) tot[t.un] = (tot[t.un] || 0) + n; });
+    var totStr = Object.keys(tot).map(function (u) { return tot[u] + ' ' + u; }).join(' + ') || 'quantidade não informada';
+    var partes = [];
+    if (cont.emb) partes.push(cont.emb + (cont.emb === 1 ? ' embarcado' : ' embarcados'));
+    if (cont.car) partes.push(cont.car + ' em carregamento');
+    if (cont.nf) partes.push(cont.nf + ' aguardando NF');
+    var nCam = S.trucks.length + (S.trucks.length === 1 ? ' caminhão' : ' caminhões');
+    return { totStr: totStr, nCam: nCam, partes: partes, soEmb: S.trucks.length > 0 && cont.emb === S.trucks.length };
+  }
+
+  function montarTexto() {
+    var r = resumo(), L = [];
+    L.push('📊 *REPORT OPERACIONAL – FECHAMENTO DO EXPEDIENTE*');
+    L.push('🏢 *' + S.cd + '*', '');
+    L.push('📅 *Data:* ' + dataBR());
+    L.push((TURNO_EMOJI[S.turno] || '🕒') + ' *Turno:* ' + String(S.turno).toUpperCase());
+    L.push('👤 *Responsável:* ' + v(S.resp), '');
+    L.push('📦 *CONFERÊNCIA*');
+    L.push('• Conferências em área: ' + v(S.emArea));
+    L.push('• Conferências programadas: ' + v(S.programadas));
+    L.push('• IDs de ordens encerradas: ' + v(S.encerradas));
+    L.push('• FOR / Em tela: ' + v(S.forTela), '');
+    L.push('🔄 *END-TO-END (E2E)*');
+    L.push('• IDs de ordens ' + nomeA() + ': ' + v(S.e2e28));
+    L.push('• IDs de ordens ' + nomeB() + ': ' + v(S.e2e23), '');
+    L.push('🔵 *BUFFER – PROGRAMAÇÃO DO DIA SEGUINTE*');
+    L.push('• Total de IDs de ordens programadas: ' + v(S.buffer), '');
+    L.push('🚚 *EXPEDIÇÃO – ' + (r.soEmb ? 'CAMINHÕES EMBARCADOS' : 'CAMINHÕES') + '*');
+    S.trucks.forEach(function (t) {
+      var st = ST[t.st] || ST.emb, q = num(t.qtd);
+      var linha = st.emoji + ' *' + (vazio(t.loja) ? 'Loja —' : 'Loja ' + t.loja.trim()) + '* · Placa ' + v(t.placa) + ' · ' + (q === null ? '— ' : q + ' ') + t.un;
+      if (t.st !== 'emb') linha += ' (' + st.nome.toLowerCase() + ')';
+      L.push(linha);
+      if (!vazio(t.obs)) L.push('    ⚠️ ' + t.obs.trim());
+    });
+    L.push('', '📌 *Total:* ' + r.totStr + ' em ' + r.nCam + (r.partes.length ? ' · ' + r.partes.join(' · ') : ''));
+    var men = String(S.mencoes || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+    if (men.length) { L.push(''); men.forEach(function (m) { L.push(m.charAt(0) === '@' ? m : '@' + m); }); }
+    return L.join('\n');
+  }
+
+  // ---------- Imagem ----------
+  function rr(c, x, y, w, h, r) {
+    c.beginPath(); c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.quadraticCurveTo(x + w, y, x + w, y + r);
+    c.lineTo(x + w, y + h - r); c.quadraticCurveTo(x + w, y + h, x + w - r, y + h); c.lineTo(x + r, y + h);
+    c.quadraticCurveTo(x, y + h, x, y + h - r); c.lineTo(x, y + r); c.quadraticCurveTo(x, y, x + r, y); c.closePath();
+  }
+  function caber(c, t, max) { if (c.measureText(t).width <= max) return t; while (t.length > 1 && c.measureText(t + '…').width > max) t = t.slice(0, -1); return t + '…'; }
+  function tx(c, s, x, y, size, peso, cor, al, max) {
+    c.font = peso + ' ' + size + 'px ' + FONT; c.fillStyle = cor; c.textAlign = al || 'left'; c.textBaseline = 'alphabetic';
+    c.fillText(max ? caber(c, s, max) : s, x, y);
+  }
+
+  function desenharImagem() {
+    var r = resumo();
+    var ea = num(S.emArea), pr = num(S.programadas), bf = num(S.buffer);
+    var azul = '#00304B', alerta = '#B35A10';
+    var kpis = [
+      { l: 'Conferências em área', v: fmt(ea), s: pr === null ? 'programadas: —' : 'de ' + pr + ' programadas', bar: azul },
+      { l: 'Ordens encerradas', v: fmt(num(S.encerradas)), s: 'conferência no turno', bar: azul },
+      { l: 'FOR / Em tela', v: fmt(num(S.forTela)), s: 'aguardando conferência', bar: azul },
+      { l: 'E2E · ' + nomeA(), v: fmt(num(S.e2e28)), s: 'IDs de ordens', bar: '#5B7F99' },
+      { l: 'E2E · ' + nomeB(), v: fmt(num(S.e2e23)), s: 'IDs de ordens', bar: '#5B7F99' },
+      { l: 'Buffer · amanhã', v: fmt(bf), s: bf === null ? 'não informado' : 'IDs programados', bar: bf === null ? '#D9711C' : '#5B7F99', cor: bf === null ? alerta : azul }
+    ];
+    var W = 1080, P = 56, gap = 20, tileH = 172, yK = 300;
+    var linhas = S.trucks.map(function (t) { return vazio(t.obs) ? 76 : 104; });
+    var tabH = 56 + linhas.reduce(function (a, b) { return a + b; }, 0);
+    var yE = yK + tileH * 2 + gap + 64, yT = yE + 34, H = yT + tabH + 120, K = 2;
+    var cv = document.createElement('canvas'); cv.width = W * K; cv.height = H * K;
+    var c = cv.getContext('2d'); c.scale(K, K);
+
+    c.fillStyle = '#FFFFFF'; c.fillRect(0, 0, W, H);
+    c.fillStyle = azul; c.fillRect(0, 0, W, 252);
+    c.fillStyle = '#D9711C'; c.fillRect(0, 244, W, 8);
+    tx(c, 'LOGÍSTICA · GRUPO PMZ · ' + S.cd, P, 74, 22, 700, '#F2A65E');
+    tx(c, 'FECHAMENTO DO EXPEDIENTE', P, 140, 54, 800, '#FFFFFF', 'left', W - 2 * P);
+    tx(c, dataBR() + '  ·  Turno ' + S.turno + '  ·  ' + (vazio(S.resp) ? 'Responsável —' : S.resp.trim()), P, 196, 28, 400, '#C9D8E3', 'left', W - 2 * P);
+
+    var colW = (W - 2 * P - 2 * gap) / 3;
+    kpis.forEach(function (k, i) {
+      var x = P + (i % 3) * (colW + gap), y = yK + Math.floor(i / 3) * (tileH + gap);
+      c.fillStyle = '#F2F5F7'; rr(c, x, y, colW, tileH, 12); c.fill();
+      c.save(); rr(c, x, y, colW, tileH, 12); c.clip(); c.fillStyle = k.bar; c.fillRect(x, y, colW, 7); c.restore();
+      tx(c, k.l, x + 22, y + 50, 22, 600, '#3F5F77', 'left', colW - 40);
+      tx(c, k.v, x + 22, y + 120, 62, 800, k.cor || azul, 'left', colW - 40);
+      tx(c, k.s, x + 22, y + 152, 20, 400, '#3F5F77', 'left', colW - 40);
+    });
+
+    tx(c, 'Expedição', P, yE, 34, 800, '#14212B');
+    tx(c, r.nCam + ' · ' + r.totStr, W - P, yE, 22, 600, '#3F5F77', 'right', 640);
+
+    c.save(); rr(c, P, yT, W - 2 * P, tabH, 12); c.clip();
+    c.fillStyle = azul; c.fillRect(P, yT, W - 2 * P, 56);
+    var cx = { st: P + 20, loja: P + 268, placa: P + 690, qtd: W - P - 22 };
+    tx(c, 'SITUAÇÃO', cx.st, yT + 36, 18, 700, '#FFFFFF');
+    tx(c, 'LOJA', cx.loja, yT + 36, 18, 700, '#FFFFFF');
+    tx(c, 'PLACA', cx.placa, yT + 36, 18, 700, '#FFFFFF');
+    tx(c, 'QTD.', cx.qtd, yT + 36, 18, 700, '#FFFFFF', 'right');
+    var y = yT + 56;
+    S.trucks.forEach(function (t, i) {
+      var h = linhas[i], st = ST[t.st] || ST.emb, q = num(t.qtd);
+      c.fillStyle = i % 2 ? '#F7F9FB' : '#FFFFFF'; c.fillRect(P, y, W - 2 * P, h);
+      c.fillStyle = '#E3E9EE'; c.fillRect(P, y, W - 2 * P, 1);
+      c.font = '800 16px ' + FONT;
+      var pw = c.measureText(st.label).width + 28;
+      c.fillStyle = st.bg; rr(c, cx.st, y + 22, pw, 32, 16); c.fill();
+      tx(c, st.label, cx.st + 14, y + 44, 16, 800, st.fg);
+      tx(c, vazio(t.loja) ? 'Loja não informada' : 'Loja ' + t.loja.trim(), cx.loja, y + 48, 26, 700, vazio(t.loja) ? alerta : '#14212B', 'left', cx.placa - cx.loja - 24);
+      if (!vazio(t.obs)) tx(c, '⚠ ' + t.obs.trim(), cx.loja, y + 80, 19, 400, '#8A4308', 'left', W - P - cx.loja - 22);
+      tx(c, v(t.placa).toUpperCase(), cx.placa, y + 48, 26, 400, '#14212B');
+      tx(c, q === null ? '—' : q + ' ' + t.un, cx.qtd, y + 48, 26, 700, q === null ? alerta : '#14212B', 'right');
+      y += h;
+    });
+    c.restore();
+    c.strokeStyle = '#DCE4EA'; c.lineWidth = 1.5; rr(c, P, yT, W - 2 * P, tabH, 12); c.stroke();
+
+    c.fillStyle = '#DCE4EA'; c.fillRect(P, H - 70, W - 2 * P, 1);
+    tx(c, 'Logística · Grupo PMZ', P, H - 34, 20, 600, '#5B7F99');
+    tx(c, 'Report operacional · ' + dataBR(), W - P, H - 34, 20, 400, '#5B7F99', 'right');
+    return cv;
+  }
+
+  // ---------- Gerar e enviar ----------
+  var blob = null, texto = '', urlImg = '';
+  function nomeArquivo() { return 'fechamento-' + S.cd + '-' + (S.data || hoje()) + '-' + String(S.turno).toLowerCase().replace('ã', 'a') + '.png'; }
+  function mostrarMsg(t) { var m = $('#msg'); m.textContent = t; m.hidden = !t; }
+
+  function gerar() {
+    texto = montarTexto();
+    $('#saidaTexto').value = texto;
+    mostrarMsg('');
+    $('#planoB').open = false;
+    var cv = desenharImagem();
+    cv.toBlob(function (b) {
+      blob = b;
+      if (urlImg) URL.revokeObjectURL(urlImg);
+      urlImg = URL.createObjectURL(b);
+      $('#img').src = urlImg;
+    }, 'image/png');
+    $('#telaForm').hidden = true; $('#telaSaida').hidden = false; window.scrollTo(0, 0);
+  }
+
+  $('#gerar').addEventListener('click', function () {
+    var w = avisos();
+    if (w.length) {
+      $('#avisosLista').innerHTML = w.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
+      $('#avisos').hidden = false; $('#avisos').scrollIntoView({ block: 'center' });
+      return;
+    }
+    $('#avisos').hidden = true; gerar();
+  });
+  $('#gerarMesmo').addEventListener('click', function () { $('#avisos').hidden = true; gerar(); });
+  $('#voltar').addEventListener('click', function () { $('#telaSaida').hidden = true; $('#telaForm').hidden = false; window.scrollTo(0, 0); });
+
+  function copiarTexto(silencioso) {
+    var ok = function () { if (!silencioso) mostrarMsg('Texto copiado. No grupo, toque e segure na caixa de mensagem e escolha Colar.'); };
+    var manual = function () {
+      try { var ta = $('#saidaTexto'); ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length); if (document.execCommand('copy')) { ok(); return; } } catch (e) {}
+      if (!silencioso) mostrarMsg('Não deu para copiar sozinho. Toque e segure no texto lá embaixo, Selecionar tudo, Copiar.');
+    };
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(texto).then(ok, manual); return; } } catch (e) {}
+    manual();
+  }
+  function salvarImagem() {
+    if (!blob) return;
+    var a = document.createElement('a'); a.href = urlImg; a.download = nomeArquivo();
+    document.body.appendChild(a); a.click(); a.remove();
+    mostrarMsg('Imagem salva na pasta Downloads / Galeria. Agora toque em “2 · Copiar texto”.');
+  }
+
+  $('#enviar').addEventListener('click', function () {
+    if (!blob) { mostrarMsg('A imagem ainda está sendo gerada. Toque de novo em 1 segundo.'); return; }
+    var arq = null;
+    try { arq = new File([blob], nomeArquivo(), { type: 'image/png' }); } catch (e) {}
+    copiarTexto(true); // reserva: se o WhatsApp não puxar a legenda, o texto já está copiado
+    if (arq && navigator.canShare && navigator.canShare({ files: [arq] })) {
+      navigator.share({ files: [arq], text: texto }).then(function () {
+        mostrarMsg('Enviado para o WhatsApp. Se a legenda não apareceu, o texto já está copiado: é só colar.');
+      }, function (e) {
+        if (e && e.name === 'AbortError') return;
+        mostrarMsg('O celular não deixou compartilhar direto. Use os 3 passos abaixo.'); $('#planoB').open = true;
+      });
+    } else {
+      mostrarMsg('Este aparelho não compartilha direto daqui. Use os 3 passos abaixo.'); $('#planoB').open = true;
+    }
+  });
+  $('#salvar').addEventListener('click', salvarImagem);
+  $('#copiar').addEventListener('click', function () { copiarTexto(false); });
+
+  // Ícone para a tela inicial (iPhone e Android)
+  try {
+    var ic = document.createElement('canvas'); ic.width = ic.height = 180;
+    var g = ic.getContext('2d');
+    g.fillStyle = '#00304B'; g.fillRect(0, 0, 180, 180);
+    g.fillStyle = '#D9711C'; g.fillRect(0, 150, 180, 30);
+    g.fillStyle = '#FFFFFF'; g.textAlign = 'center'; g.font = '800 58px ' + FONT; g.fillText('PMZ', 90, 92);
+    g.fillStyle = '#F2A65E'; g.font = '700 22px ' + FONT; g.fillText('REPORT', 90, 128);
+    var d = ic.toDataURL('image/png'); $('#appIcon').href = d; $('#favIcon').href = d;
+  } catch (e) {}
+
+  preencher();
+})();
+</script>
+</body>
+</html>
